@@ -18,3 +18,9 @@
 *.aab
 app/release/
 local.properties
+
+# ...except the latest signed release build, tracked deliberately for distribution.
+# Superseded versions are removed (not kept) when this is updated to a new one.
+!app/release/
+app/release/*
+!app/release/WalletJournal-v1.0.1.apk
