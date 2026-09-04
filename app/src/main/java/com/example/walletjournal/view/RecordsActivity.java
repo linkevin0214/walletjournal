@@ -285,22 +285,44 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
                                  @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState,
                                  boolean isCurrentlyActive) {
-            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && dX != 0) {
                 View itemView = viewHolder.itemView;
-                Paint background = new Paint();
-                background.setColor(ContextCompat.getColor(RecordsActivity.this, R.color.accounts_amount_negative));
-                RectF rect = dX > 0
-                        ? new RectF(itemView.getLeft(), itemView.getTop(), dX, itemView.getBottom())
-                        : new RectF(itemView.getRight() + dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-                c.drawRect(rect, background);
+                int verticalInset = dp(6);
+                float cornerRadius = dp(14);
+                float centerY = itemView.getTop() + itemView.getHeight() / 2f;
+                // A fixed anchor near the edge being dragged from — clipped to the
+                // currently-revealed strip so the icon/label never draw past it early
+                // in the gesture, and settle into place as the swipe continues.
+                float anchorX = dX > 0 ? itemView.getLeft() + dp(30) : itemView.getRight() - dp(30);
 
-                Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
-                text.setColor(Color.WHITE);
-                text.setTextSize(itemView.getHeight() * 0.35f);
-                text.setTextAlign(dX > 0 ? Paint.Align.LEFT : Paint.Align.RIGHT);
-                float textX = dX > 0 ? itemView.getLeft() + dp(16) : itemView.getRight() - dp(16);
-                float textY = itemView.getTop() + itemView.getHeight() / 2f - (text.descent() + text.ascent()) / 2f;
-                c.drawText("刪除", textX, textY, text);
+                RectF rect = dX > 0
+                        ? new RectF(itemView.getLeft(), itemView.getTop() + verticalInset,
+                                dX, itemView.getBottom() - verticalInset)
+                        : new RectF(itemView.getRight() + dX, itemView.getTop() + verticalInset,
+                                itemView.getRight(), itemView.getBottom() - verticalInset);
+
+                Paint background = new Paint(Paint.ANTI_ALIAS_FLAG);
+                background.setColor(ContextCompat.getColor(RecordsActivity.this, R.color.accounts_amount_negative));
+                c.drawRoundRect(rect, cornerRadius, cornerRadius, background);
+
+                c.save();
+                c.clipRect(rect);
+
+                Paint icon = new Paint(Paint.ANTI_ALIAS_FLAG);
+                icon.setTextAlign(Paint.Align.CENTER);
+                icon.setTextSize(itemView.getHeight() * 0.36f);
+                float iconY = centerY - dp(7) - (icon.descent() + icon.ascent()) / 2f;
+                c.drawText("🗑", anchorX, iconY, icon);
+
+                Paint label = new Paint(Paint.ANTI_ALIAS_FLAG);
+                label.setColor(Color.WHITE);
+                label.setFakeBoldText(true);
+                label.setTextAlign(Paint.Align.CENTER);
+                label.setTextSize(dp(11));
+                float labelY = centerY + dp(15) - (label.descent() + label.ascent()) / 2f;
+                c.drawText("刪除", anchorX, labelY, label);
+
+                c.restore();
             }
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
