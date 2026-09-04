@@ -5,15 +5,16 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.TextView;
+import android.window.SplashScreenView;
 
 import java.util.List;
 
-import androidx.core.splashscreen.SplashScreen;
-import androidx.core.splashscreen.SplashScreenViewProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +27,14 @@ import com.example.walletjournal.presenter.AccountsPresenter;
  * Accounts overview screen: total assets + the full list of account rows,
  * fetched from Room and rendered in a RecyclerView. Also the app's launcher
  * activity (see the manifest), so this is where the cold-start splash screen
- * (Theme.App.Starting) is installed and held/animated off.
+ * (Theme.App.Starting) is driven from.
+ *
+ * This talks to the real platform android.window.SplashScreen (API 31+) rather
+ * than the androidx.core:core-splashscreen compat library — this project's
+ * ancient Android Gradle Plugin (3.2.0, see the root build.gradle) can't dex
+ * that library's classes at all (dexer crash), so there is deliberately no
+ * splash on pre-12 devices; API 31+ still gets the full custom background/
+ * icon/exit-animation experience straight from Theme.App.Starting.
  */
 public class AccountsActivity extends BaseActivity implements AccountsContract.IAccounts_view {
 
@@ -39,17 +47,31 @@ public class AccountsActivity extends BaseActivity implements AccountsContract.I
     /** Keeps the splash screen up until the first account load actually has data to
      *  show, so it cuts straight to a populated list instead of a blank-then-filled
      *  flash — see showAccounts() below. */
-    private boolean dataLoaded = false;
+    private volatile boolean dataLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Must be called before super.onCreate() — see the SplashScreen API docs.
-        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accounts);
 
-        splashScreen.setKeepOnScreenCondition(() -> !dataLoaded);
-        splashScreen.setOnExitAnimationListener(this::animateSplashExit);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // The platform dismisses its splash the moment this activity's first frame
+            // draws — holding that first draw (via a pre-draw listener that returns
+            // false until ready) is how you "keep it on screen" without the compat
+            // library's setKeepOnScreenCondition() helper.
+            View content = findViewById(android.R.id.content);
+            content.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    if (!dataLoaded) {
+                        return false;
+                    }
+                    content.getViewTreeObserver().removeOnPreDrawListener(this);
+                    return true;
+                }
+            });
+            getSplashScreen().setOnExitAnimationListener(this::animateSplashExit);
+        }
 
         presenter = new AccountsPresenter(getApplicationContext());
 
@@ -94,9 +116,8 @@ public class AccountsActivity extends BaseActivity implements AccountsContract.I
 
     /** Icon pops slightly then the whole splash view fades away, instead of the
      *  system's plain default fade — a bit more "finished product" on the way in. */
-    private void animateSplashExit(SplashScreenViewProvider provider) {
-        View icon = provider.getIconView();
-        View splashView = provider.getView();
+    private void animateSplashExit(SplashScreenView splashView) {
+        View icon = splashView.getIconView();
 
         ObjectAnimator popX = ObjectAnimator.ofFloat(icon, View.SCALE_X, 1f, 1.15f, 0f);
         ObjectAnimator popY = ObjectAnimator.ofFloat(icon, View.SCALE_Y, 1f, 1.15f, 0f);
@@ -109,7 +130,7 @@ public class AccountsActivity extends BaseActivity implements AccountsContract.I
         exit.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                provider.remove();
+                splashView.remove();
             }
         });
         exit.start();

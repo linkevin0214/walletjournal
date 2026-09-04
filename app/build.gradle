@@ -8,7 +8,10 @@ android {
     defaultConfig {
         applicationId "com.example.walletjournal"
         minSdkVersion 24
-        targetSdkVersion 30
+        // 31, not 30: Android 12 only honors a custom splash theme/icon when the app
+        // targets 31+ — below that it just shows its own generic default splash and
+        // ignores Theme.App.Starting entirely.
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0.1"
 
@@ -39,7 +42,6 @@ android {
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
