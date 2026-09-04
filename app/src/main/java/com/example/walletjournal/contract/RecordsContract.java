@@ -22,8 +22,12 @@ public interface RecordsContract {
         /** periodLabel: e.g. "9月結餘" with no date filter, or "9/1 - 9/15 收支" with one. Both totals
          *  exclude TRANSFER records and ignore the type filter; balance = totalIncome - totalExpense. */
         void showSummary(String periodLabel, long totalExpense, long totalIncome);
-        /** categories is used to resolve each record's real icon/color (built-in + custom). */
-        void showRecords(List<Record> records, List<Category> categories);
+        /** categories is used to resolve each record's real icon/color (built-in + custom).
+         *  hasAnyRecords is true as long as the account has ANY record at all, regardless of
+         *  the active filters/search — it's what tells an empty `records` apart from a true
+         *  cold start (no records ever entered) vs. a filter/search that just matched nothing,
+         *  so the empty-state message can point at the right fix. */
+        void showRecords(List<Record> records, List<Category> categories, boolean hasAnyRecords);
     }
 
     interface IRecords_model extends BaseContract.IBase_Model {

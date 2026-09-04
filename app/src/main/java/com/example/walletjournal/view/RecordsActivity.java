@@ -47,6 +47,14 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
 
     private static final long DAY_MILLIS = 24L * 60 * 60 * 1000;
 
+    /** Room's own query is sub-millisecond even at 1000+ rows (see the index change),
+     *  so without this floor the loading spinner's show→hide round trip routinely
+     *  finishes before the very first frame is even drawn — the spinner is
+     *  technically shown, but never actually appears on screen. Only the first load
+     *  after onResume() (see firstLoadPending) is held to this floor; a filter/search
+     *  change or a later reload just updates instantly, no spinner involved. */
+    private static final long MIN_LOADING_MS = 300;
+
     private RecordsPresenter presenter;
 
     private TextView tvSummaryLabel;
@@ -63,7 +71,12 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
 
     private RecyclerView rvRecords;
     private RecordsAdapter adapter;
-    private TextView tvEmpty;
+    private View layoutEmpty;
+    private TextView tvEmptyTitle;
+    private TextView tvEmptySubtitle;
+    private View layoutLoading;
+    private long loadStartMillis;
+    private boolean firstLoadPending = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +131,10 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
         rvRecords.setAdapter(adapter);
         new ItemTouchHelper(new RecordSwipeCallback()).attachToRecyclerView(rvRecords);
 
-        tvEmpty = findViewById(R.id.tv_empty);
+        layoutEmpty = findViewById(R.id.layout_empty);
+        tvEmptyTitle = findViewById(R.id.tv_empty_title);
+        tvEmptySubtitle = findViewById(R.id.tv_empty_subtitle);
+        layoutLoading = findViewById(R.id.layout_loading);
 
         // Already on "清單" — tapping it again is a no-op.
         findViewById(R.id.tab_accounts).setOnClickListener(v -> finish());
@@ -135,6 +151,9 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
     @Override
     protected void onResume() {
         super.onResume();
+        if (firstLoadPending) {
+            loadStartMillis = System.currentTimeMillis();
+        }
         presenter.loadData();
     }
 
@@ -252,9 +271,34 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
     }
 
     @Override
-    public void showRecords(List<Record> records, List<Category> categories) {
+    public void showRecords(List<Record> records, List<Category> categories, boolean hasAnyRecords) {
+        if (!firstLoadPending) {
+            applyRecords(records, categories, hasAnyRecords);
+            return;
+        }
+        firstLoadPending = false;
+        long elapsed = System.currentTimeMillis() - loadStartMillis;
+        long remaining = Math.max(0, MIN_LOADING_MS - elapsed);
+        layoutLoading.postDelayed(() -> applyRecords(records, categories, hasAnyRecords), remaining);
+    }
+
+    private void applyRecords(List<Record> records, List<Category> categories, boolean hasAnyRecords) {
+        layoutLoading.setVisibility(View.GONE);
         adapter.submitList(records, categories);
-        tvEmpty.setVisibility(records == null || records.isEmpty() ? View.VISIBLE : View.GONE);
+
+        boolean empty = records == null || records.isEmpty();
+        layoutEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+        if (empty) {
+            if (hasAnyRecords) {
+                // A filter/search matched nothing — tapping the FAB wouldn't fix that.
+                tvEmptyTitle.setText("找不到符合的紀錄");
+                tvEmptySubtitle.setText("試試清除搜尋或篩選條件");
+            } else {
+                // True cold start: nothing has ever been entered yet.
+                tvEmptyTitle.setText("還沒有任何紀錄");
+                tvEmptySubtitle.setText("點擊中間的「+」開始記帳");
+            }
+        }
     }
 
     @Override

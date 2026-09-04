@@ -42,6 +42,7 @@ public class AccountsActivity extends BaseActivity implements AccountsContract.I
 
     private TextView tvTotalAssets;
     private RecyclerView rvAccounts;
+    private View layoutEmpty;
     private AccountsAdapter adapter;
 
     /** Keeps the splash screen up until the first account load actually has data to
@@ -82,6 +83,8 @@ public class AccountsActivity extends BaseActivity implements AccountsContract.I
         adapter = new AccountsAdapter();
         rvAccounts.setAdapter(adapter);
 
+        layoutEmpty = findViewById(R.id.layout_empty);
+
         findViewById(R.id.btn_add_account).setOnClickListener(v ->
                 startActivity(new Intent(this, AddAccountActivity.class)));
 
@@ -112,6 +115,7 @@ public class AccountsActivity extends BaseActivity implements AccountsContract.I
     public void showAccounts(List<Account> accounts) {
         dataLoaded = true;
         adapter.submitList(accounts);
+        layoutEmpty.setVisibility(accounts == null || accounts.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     /** Icon pops slightly then the whole splash view fades away, instead of the

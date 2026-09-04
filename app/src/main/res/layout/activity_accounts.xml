@@ -46,18 +46,66 @@
 
     </LinearLayout>
 
-    <!-- Scrollable account list: the RecyclerView scrolls itself, no ScrollView wrapper -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_accounts"
+    <!-- Scrollable account list (the RecyclerView scrolls itself, no ScrollView wrapper)
+         and the cold-start empty state share this slot, toggled by whether any account
+         exists yet. -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingStart="24dp"
-        android:paddingTop="24dp"
-        android:paddingEnd="24dp"
-        tools:itemCount="3"
-        tools:listitem="@layout/item_account" />
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_accounts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="24dp"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_account" />
+
+        <!-- Empty state: same icon-circle + emoji language as the Records list's, just
+             themed blue to match this tab's accent color. -->
+        <LinearLayout
+            android:id="@+id/layout_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:background="@drawable/bg_icon_circle_blue">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="👛"
+                    android:textSize="40sp" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="還沒有任何帳戶"
+                android:textColor="@color/accounts_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="點擊下方「+ 新增帳戶」新增你的第一個帳戶"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </FrameLayout>
 
     <!-- Add account button (fixed) -->
     <TextView

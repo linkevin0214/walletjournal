@@ -179,29 +179,95 @@
             android:visibility="gone" />
     </LinearLayout>
 
-    <!-- Records list, grouped by day -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_records"
+    <!-- Records list (grouped by day) and the empty state share this slot, toggled by
+         whether there's anything to show — see RecordsActivity#showRecords(). -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingStart="24dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="24dp"
-        tools:itemCount="4"
-        tools:listitem="@layout/item_record" />
+        android:layout_weight="1">
 
-    <TextView
-        android:id="@+id/tv_empty"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:text="還沒有任何紀錄"
-        android:textColor="@color/accounts_text_secondary"
-        android:textSize="14sp"
-        android:visibility="gone" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_records"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="24dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="24dp"
+            tools:itemCount="4"
+            tools:listitem="@layout/item_record" />
+
+        <!-- Empty state: cold-start (no records yet) or a filter/search with no matches.
+             Same icon-circle + emoji language as item_record's category icons, just
+             scaled up, so it reads as this app's illustration rather than a generic
+             placeholder. -->
+        <LinearLayout
+            android:id="@+id/layout_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:background="@drawable/bg_icon_circle_gray">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="🧾"
+                    android:textSize="40sp" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tv_empty_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="還沒有任何紀錄"
+                android:textColor="@color/accounts_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_empty_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="點擊中間的「+」開始記帳"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Shown from onCreate() until the first showRecords() call lands — loadData()
+             hits Room on a background thread, so without this the list area is just
+             blank white for that window instead of reading as "still loading". Drawn
+             last so it sits on top of the (still-empty) RecyclerView underneath. -->
+        <LinearLayout
+            android:id="@+id/layout_loading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ProgressBar
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="@color/nav_active" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="資料載入中"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </FrameLayout>
 
     <!-- Bottom navigation bar -->
     <FrameLayout

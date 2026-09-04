@@ -174,7 +174,7 @@ public class RecordsPresenter implements RecordsContract.IRecords_presenter {
         }
 
         view.showSummary(periodLabel(), totalExpense, totalIncome);
-        view.showRecords(filtered, categories);
+        view.showRecords(filtered, categories, !allRecords.isEmpty());
     }
 
     private boolean containsQuery(String value) {
