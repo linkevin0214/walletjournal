@@ -357,6 +357,18 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Fixed-width gap the FAB below sits on top of. Because it's a real
+                 sibling (not padding/margin on either neighbor), it's excluded from
+                 both halves' weight distribution and always ends up centered exactly
+                 on the boundary between them — see the comment below on why that
+                 boundary is where it is. Without this, 帳戶's and 統計's touch targets
+                 ran right up against each other with no gap, so a tap near the FAB
+                 (meant for the FAB, or for whichever tab was closer) regularly landed
+                 on the wrong one. -->
+            <View
+                android:layout_width="76dp"
+                android:layout_height="match_parent" />
+
             <!-- Right half: 統計 alone, centered so the FAB below (pinned to
                  screen center) lands exactly on the boundary between the two -->
             <LinearLayout
