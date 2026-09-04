@@ -1,14 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Launch (cold-start) theme, set on the launcher activity only (AccountsActivity)
-         via the AndroidX SplashScreen compat library — draws natively on Android 12+
-         and is emulated on older versions back to the app's minSdk. postSplashScreenTheme
-         is what the activity's theme becomes once the splash is dismissed. -->
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/splash_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/generated_image</item>
-        <item name="windowSplashScreenAnimationDuration">500</item>
-        <item name="postSplashScreenTheme">@style/Theme.MyApplication</item>
-    </style>
+    <!-- Launch (cold-start) theme, set on the launcher activity only (AccountsActivity).
+         This default (API < 31) variant is a plain no-op alias — the real
+         android:windowSplashScreen* attributes only exist in the framework starting
+         API 31, and this project has no compat library to emulate them on older
+         versions (see AccountsActivity's class doc), so pre-12 devices just launch
+         straight into the normal app theme with no special splash treatment.
+         values-v31/themes.xml overrides this with the actual splash styling. -->
+    <style name="Theme.App.Starting" parent="Theme.MyApplication" />
 
     <!-- Base application theme. -->
     <style name="Theme.MyApplication" parent="Theme.MaterialComponents.DayNight.NoActionBar">
