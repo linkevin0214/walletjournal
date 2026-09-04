@@ -43,6 +43,15 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     /** Either a date-header String or a Record. */
     private final List<Object> items = new ArrayList<>();
     private final Map<String, Category> categoriesByName = new HashMap<>();
+    private OnRecordClickListener clickListener;
+
+    public interface OnRecordClickListener {
+        void onRecordClick(Record record);
+    }
+
+    public void setOnRecordClickListener(OnRecordClickListener listener) {
+        this.clickListener = listener;
+    }
 
     public void submitList(List<Record> records, List<Category> categories) {
         categoriesByName.clear();
@@ -90,6 +99,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         } else {
             Record record = (Record) item;
             ((RowViewHolder) holder).bind(record, categoriesByName.get(record.getCategory()));
+            holder.itemView.setOnClickListener(v -> {
+                if (clickListener != null) {
+                    clickListener.onRecordClick(record);
+                }
+            });
         }
     }
 

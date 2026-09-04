@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -48,11 +49,16 @@ import com.example.walletjournal.presenter.AddRecordPresenter;
  */
 public class AddRecordActivity extends BaseActivity implements AddRecordContract.IAddRecord_view {
 
+    /** Present + a valid row id to open this screen in edit mode instead of create. */
+    public static final String EXTRA_RECORD_ID = "record_id";
+
     private static final int GRID_COLUMNS = 4;
     private static final int PREVIEW_SLOTS = 3;
 
     private AddRecordPresenter presenter;
 
+    private TextView tvTitle;
+    private TextView btnDeleteRecord;
     private TextView tabExpense;
     private TextView tabIncome;
     private TextView tabTransfer;
@@ -81,6 +87,8 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
 
         presenter = new AddRecordPresenter(getApplicationContext());
 
+        tvTitle = findViewById(R.id.tv_title);
+        btnDeleteRecord = findViewById(R.id.btn_delete_record);
         tabExpense = findViewById(R.id.tab_expense);
         tabIncome = findViewById(R.id.tab_income);
         tabTransfer = findViewById(R.id.tab_transfer);
@@ -131,10 +139,31 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
             return false;
         });
 
+        long editRecordId = getIntent().getLongExtra(EXTRA_RECORD_ID, -1);
+        boolean editing = editRecordId > 0;
+        // Title/delete visibility are cosmetic and known immediately from the intent —
+        // no need to round-trip through the presenter just for this.
+        tvTitle.setText(editing ? "編輯紀錄" : "新增紀錄");
+        btnDeleteRecord.setVisibility(editing ? View.VISIBLE : View.GONE);
+        btnDeleteRecord.setOnClickListener(v -> confirmDelete());
+
         presenter.attachView(this);
-        presenter.selectType(RecordType.EXPENSE);
-        presenter.loadAccounts();
-        presenter.loadCategories();
+        if (editing) {
+            presenter.loadForEdit(editRecordId);
+        } else {
+            presenter.selectType(RecordType.EXPENSE);
+            presenter.loadAccounts();
+            presenter.loadCategories();
+        }
+    }
+
+    private void confirmDelete() {
+        new AlertDialog.Builder(this)
+                .setTitle("刪除紀錄")
+                .setMessage("確定要刪除這筆紀錄嗎？此動作無法復原。")
+                .setNegativeButton("取消", null)
+                .setPositiveButton("刪除", (dialog, which) -> presenter.delete())
+                .show();
     }
 
     @Override
@@ -173,6 +202,16 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
     @Override
     public void showDate(String date) {
         tvDateValue.setText(date);
+    }
+
+    @Override
+    public void showAmount(String amount) {
+        etAmount.setText(amount);
+    }
+
+    @Override
+    public void showNote(String note) {
+        etNote.setText(note == null ? "" : note);
     }
 
     private void showDatePicker() {

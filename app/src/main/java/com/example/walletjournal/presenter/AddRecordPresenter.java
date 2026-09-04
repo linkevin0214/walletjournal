@@ -42,6 +42,17 @@ public class AddRecordPresenter implements AddRecordContract.IAddRecord_presente
     /** Defaults to now; the time-of-day is kept as-is when the user only changes the date. */
     private long selectedDateMillis = System.currentTimeMillis();
 
+    /** > 0 while editing an existing record; -1 for a fresh (create) screen. */
+    private long editingRecordId = -1;
+    /** The record being edited, kept so submit()/delete() can undo its old effect. */
+    private Record originalRecord;
+    /** Category name to select once loadCategories() for its type comes back —
+     *  set by loadForEdit(), consumed and cleared the first time it resolves. */
+    private String pendingCategoryName;
+    /** Account titles to select once loadAccounts() comes back — same idea. */
+    private String pendingFromAccountTitle;
+    private String pendingToAccountTitle;
+
     public AddRecordPresenter(Context context) {
         model = new AddRecordModel(context);
     }
@@ -66,12 +77,34 @@ public class AddRecordPresenter implements AddRecordContract.IAddRecord_presente
                     return;
                 }
                 accounts = fetched;
-                accountIndex = 0;
-                toAccountIndex = accounts.size() > 1 ? 1 : 0;
+
+                if (pendingFromAccountTitle != null) {
+                    accountIndex = indexOfAccount(pendingFromAccountTitle);
+                    pendingFromAccountTitle = null;
+                } else {
+                    accountIndex = 0;
+                }
+                if (pendingToAccountTitle != null) {
+                    toAccountIndex = indexOfAccount(pendingToAccountTitle);
+                    pendingToAccountTitle = null;
+                } else {
+                    toAccountIndex = accounts.size() > 1 ? 1 : 0;
+                }
+
                 view.showAccount(currentAccountLabel(accountIndex));
                 view.showToAccount(currentAccountLabel(toAccountIndex));
             });
         });
+    }
+
+    /** 0 if not found (e.g. the account was renamed/deleted since the record was created). */
+    private int indexOfAccount(String title) {
+        for (int i = 0; i < accounts.size(); i++) {
+            if (accounts.get(i).getTitle().equals(title)) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -92,15 +125,29 @@ public class AddRecordPresenter implements AddRecordContract.IAddRecord_presente
                 }
                 categories = fetched;
 
-                boolean stillPresent = false;
-                for (Category category : categories) {
-                    if (category.getId() == selectedCategoryId) {
-                        stillPresent = true;
-                        break;
+                if (pendingCategoryName != null) {
+                    selectedCategoryId = -1;
+                    for (Category category : categories) {
+                        if (category.getName().equals(pendingCategoryName)) {
+                            selectedCategoryId = category.getId();
+                            break;
+                        }
                     }
-                }
-                if (!stillPresent && !categories.isEmpty()) {
-                    selectedCategoryId = categories.get(0).getId();
+                    pendingCategoryName = null;
+                    if (selectedCategoryId == -1 && !categories.isEmpty()) {
+                        selectedCategoryId = categories.get(0).getId();
+                    }
+                } else {
+                    boolean stillPresent = false;
+                    for (Category category : categories) {
+                        if (category.getId() == selectedCategoryId) {
+                            stillPresent = true;
+                            break;
+                        }
+                    }
+                    if (!stillPresent && !categories.isEmpty()) {
+                        selectedCategoryId = categories.get(0).getId();
+                    }
                 }
 
                 // Always push, even if the grid isn't visible right now — this is the
@@ -189,6 +236,57 @@ public class AddRecordPresenter implements AddRecordContract.IAddRecord_presente
     }
 
     @Override
+    public void loadForEdit(long recordId) {
+        if (recordId <= 0) {
+            return;
+        }
+        editingRecordId = recordId;
+        AppExecutors.diskIO(() -> {
+            Record fetched = model.getRecordById(recordId);
+            AppExecutors.mainThread(() -> {
+                if (view == null || fetched == null) {
+                    return;
+                }
+                originalRecord = fetched;
+                selectedType = RecordType.valueOf(fetched.getType());
+                selectedDateMillis = fetched.getCreatedAt();
+                pendingFromAccountTitle = fetched.getAccount();
+                pendingToAccountTitle = fetched.getToAccount();
+
+                boolean isTransfer = selectedType == RecordType.TRANSFER;
+                view.showSelectedType(selectedType);
+                view.showToAccountRowVisible(isTransfer);
+                view.showCategoryGridVisible(!isTransfer);
+                view.showDate(formatDate(selectedDateMillis));
+                view.showAmount(String.valueOf(fetched.getAmount()));
+                view.showNote(fetched.getNote());
+
+                loadAccounts();
+                if (!isTransfer) {
+                    pendingCategoryName = fetched.getCategory();
+                    loadCategories();
+                }
+            });
+        });
+    }
+
+    @Override
+    public void delete() {
+        if (view == null || originalRecord == null) {
+            return;
+        }
+        Record toDelete = originalRecord;
+        AppExecutors.diskIO(() -> {
+            model.deleteRecord(toDelete);
+            AppExecutors.mainThread(() -> {
+                if (view != null) {
+                    view.closeScreen();
+                }
+            });
+        });
+    }
+
+    @Override
     public void submit(String amountText, String note) {
         if (view == null) {
             return;
@@ -239,15 +337,17 @@ public class AddRecordPresenter implements AddRecordContract.IAddRecord_presente
         String trimmedNote = note == null ? "" : note.trim();
         String toAccountTitle = toAccount == null ? null : toAccount.getTitle();
 
-        Record record = new Record(selectedType.name(), amount, fromAccount.getTitle(), toAccountTitle,
-                category, trimmedNote, selectedDateMillis);
-
-        Account finalFromAccount = fromAccount;
-        Account finalToAccount = toAccount;
-        RecordType finalType = selectedType;
+        boolean isEdit = editingRecordId > 0;
+        Record record = new Record(isEdit ? editingRecordId : 0, selectedType.name(), amount,
+                fromAccount.getTitle(), toAccountTitle, category, trimmedNote, selectedDateMillis);
+        Record editedOriginal = originalRecord;
 
         AppExecutors.diskIO(() -> {
-            model.addRecord(record, finalType, finalFromAccount, finalToAccount);
+            if (isEdit) {
+                model.updateRecord(editedOriginal, record);
+            } else {
+                model.addRecord(record);
+            }
             AppExecutors.mainThread(() -> {
                 if (view != null) {
                     view.closeScreen();

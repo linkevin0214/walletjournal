@@ -68,6 +68,11 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
         rvRecords = findViewById(R.id.rv_records);
         rvRecords.setLayoutManager(new LinearLayoutManager(this));
         adapter = new RecordsAdapter();
+        adapter.setOnRecordClickListener(record -> {
+            Intent intent = new Intent(this, AddRecordActivity.class);
+            intent.putExtra(AddRecordActivity.EXTRA_RECORD_ID, record.getId());
+            startActivity(intent);
+        });
         rvRecords.setAdapter(adapter);
 
         tvEmpty = findViewById(R.id.tv_empty);

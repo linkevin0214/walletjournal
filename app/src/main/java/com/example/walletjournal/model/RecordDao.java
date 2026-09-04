@@ -3,8 +3,10 @@ package com.example.walletjournal.model;
 import java.util.List;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 @Dao
 public interface RecordDao {
@@ -15,8 +17,18 @@ public interface RecordDao {
     @Query("SELECT * FROM records ORDER BY createdAt DESC, id DESC")
     List<Record> getAll();
 
+    /** Null if no record with that id exists (e.g. it was deleted elsewhere). */
+    @Query("SELECT * FROM records WHERE id = :id LIMIT 1")
+    Record getById(long id);
+
     @Insert
     long insert(Record record);
+
+    @Update
+    void update(Record record);
+
+    @Delete
+    void delete(Record record);
 
     @Query("SELECT category AS category, SUM(amount) AS total FROM records "
             + "WHERE type = 'EXPENSE' AND category IS NOT NULL AND category != '' "
