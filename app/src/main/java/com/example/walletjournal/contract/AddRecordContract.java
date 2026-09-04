@@ -17,6 +17,7 @@ public interface AddRecordContract {
         void showAccount(String account);
         void showToAccount(String account);
         void showToAccountRowVisible(boolean visible);
+        void showDate(String date);
 
         /** Real, DB-backed category grid for the currently selected type + a trailing "add new" card. */
         void showCategoryGrid(List<Category> categories, long selectedCategoryId);
@@ -42,6 +43,8 @@ public interface AddRecordContract {
         void cycleAccount();
         void cycleToAccount();
         void selectCategory(long categoryId);
+        long getSelectedDateMillis();
+        void selectDate(int year, int month, int day);
         void submit(String amountText, String note);
     }
 }

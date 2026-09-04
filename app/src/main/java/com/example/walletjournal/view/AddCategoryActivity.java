@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -73,6 +74,15 @@ public class AddCategoryActivity extends BaseActivity implements AddCategoryCont
 
         findViewById(R.id.btn_add_category).setOnClickListener(v ->
                 presenter.submit(etName.getText().toString()));
+
+        // Keyboard "Done" key was unwired, so pressing Enter did nothing.
+        etName.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                presenter.submit(etName.getText().toString());
+                return true;
+            }
+            return false;
+        });
 
         presenter.attachView(this);
         presenter.selectIcon(CategoryPalette.ICON_KEYS[0]);

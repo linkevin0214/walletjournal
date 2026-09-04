@@ -108,6 +108,7 @@
                 android:background="@null"
                 android:gravity="center"
                 android:hint="0"
+                android:imeOptions="actionNext"
                 android:includeFontPadding="false"
                 android:inputType="number"
                 android:maxLines="1"
@@ -166,6 +167,63 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="現金"
+                android:textColor="@color/accounts_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="›"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/accounts_divider" />
+
+        <!-- Date row -->
+        <LinearLayout
+            android:id="@+id/row_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
+
+            <FrameLayout
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_icon_circle_gray">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="📅"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="日期"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_date_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="今天"
                 android:textColor="@color/accounts_text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -302,6 +360,7 @@
                 android:background="@null"
                 android:gravity="end"
                 android:hint="午餐"
+                android:imeOptions="actionDone"
                 android:inputType="text"
                 android:maxLines="1"
                 android:textColor="@color/accounts_text_primary"

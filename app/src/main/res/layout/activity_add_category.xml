@@ -79,6 +79,7 @@
         android:background="@drawable/bg_input_field"
         android:gravity="center_vertical|start"
         android:hint="例如:寵物用品"
+        android:imeOptions="actionDone"
         android:inputType="text"
         android:maxLines="1"
         android:paddingStart="16dp"

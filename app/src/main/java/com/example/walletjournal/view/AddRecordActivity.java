@@ -1,5 +1,6 @@
 package com.example.walletjournal.view;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -9,12 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -55,6 +58,7 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
     private TextView tabTransfer;
     private EditText etAmount;
     private TextView tvAccountValue;
+    private TextView tvDateValue;
     private View rowToAccount;
     private View dividerToAccount;
     private TextView tvToAccountValue;
@@ -82,6 +86,7 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
         tabTransfer = findViewById(R.id.tab_transfer);
         etAmount = findViewById(R.id.et_amount);
         tvAccountValue = findViewById(R.id.tv_account_value);
+        tvDateValue = findViewById(R.id.tv_date_value);
         rowToAccount = findViewById(R.id.row_to_account);
         dividerToAccount = findViewById(R.id.divider_to_account);
         tvToAccountValue = findViewById(R.id.tv_to_account_value);
@@ -99,9 +104,27 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
 
         findViewById(R.id.row_account).setOnClickListener(v -> presenter.cycleAccount());
         rowToAccount.setOnClickListener(v -> presenter.cycleToAccount());
+        findViewById(R.id.row_date).setOnClickListener(v -> showDatePicker());
 
         findViewById(R.id.btn_save_record).setOnClickListener(v -> presenter.submit(
                 etAmount.getText().toString(), etNote.getText().toString()));
+
+        // Keyboard "Next"/"Done" keys were unwired, so pressing Enter did nothing —
+        // chain amount -> note, then submit from note like tapping 儲存.
+        etAmount.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                etNote.requestFocus();
+                return true;
+            }
+            return false;
+        });
+        etNote.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                presenter.submit(etAmount.getText().toString(), etNote.getText().toString());
+                return true;
+            }
+            return false;
+        });
 
         presenter.attachView(this);
         presenter.selectType(RecordType.EXPENSE);
@@ -140,6 +163,18 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
     @Override
     public void showToAccount(String account) {
         tvToAccountValue.setText(account);
+    }
+
+    @Override
+    public void showDate(String date) {
+        tvDateValue.setText(date);
+    }
+
+    private void showDatePicker() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(presenter.getSelectedDateMillis());
+        new DatePickerDialog(this, (picker, year, month, day) -> presenter.selectDate(year, month, day),
+                cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     @Override

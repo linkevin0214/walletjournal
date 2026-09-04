@@ -38,6 +38,7 @@
             android:background="@null"
             android:gravity="end"
             android:hint="0"
+            android:imeOptions="actionNext"
             android:inputType="number"
             android:maxLines="1"
             android:textColor="@color/accounts_text_primary"

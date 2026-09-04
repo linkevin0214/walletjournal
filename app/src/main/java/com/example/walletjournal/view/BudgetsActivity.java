@@ -3,6 +3,7 @@ package com.example.walletjournal.view;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -66,6 +67,32 @@ public class BudgetsActivity extends BaseActivity implements BudgetsContract.IBu
             container.addView(row);
             categories.add(budget.getCategory());
             amountFields.add(amount);
+        }
+
+        // Keyboard "Next"/"Done" keys were unwired, so pressing Enter did nothing —
+        // chain each row's amount field to the next, and submit from the last one.
+        for (int i = 0; i < amountFields.size(); i++) {
+            EditText field = amountFields.get(i);
+            boolean isLast = i == amountFields.size() - 1;
+            if (isLast) {
+                field.setImeOptions(EditorInfo.IME_ACTION_DONE);
+                field.setOnEditorActionListener((v, actionId, event) -> {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        submit();
+                        return true;
+                    }
+                    return false;
+                });
+            } else {
+                EditText next = amountFields.get(i + 1);
+                field.setOnEditorActionListener((v, actionId, event) -> {
+                    if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                        next.requestFocus();
+                        return true;
+                    }
+                    return false;
+                });
+            }
         }
     }
 

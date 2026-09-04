@@ -1,7 +1,10 @@
 package com.example.walletjournal.presenter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
 
@@ -36,6 +39,8 @@ public class AddRecordPresenter implements AddRecordContract.IAddRecord_presente
     private int accountIndex = 0;
     private int toAccountIndex = 0;
     private long selectedCategoryId = -1;
+    /** Defaults to now; the time-of-day is kept as-is when the user only changes the date. */
+    private long selectedDateMillis = System.currentTimeMillis();
 
     public AddRecordPresenter(Context context) {
         model = new AddRecordModel(context);
@@ -44,6 +49,7 @@ public class AddRecordPresenter implements AddRecordContract.IAddRecord_presente
     @Override
     public void attachView(AddRecordContract.IAddRecord_view view) {
         this.view = view;
+        view.showDate(formatDate(selectedDateMillis));
     }
 
     @Override
@@ -161,6 +167,28 @@ public class AddRecordPresenter implements AddRecordContract.IAddRecord_presente
     }
 
     @Override
+    public long getSelectedDateMillis() {
+        return selectedDateMillis;
+    }
+
+    @Override
+    public void selectDate(int year, int month, int day) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(selectedDateMillis);
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        selectedDateMillis = cal.getTimeInMillis();
+        if (view != null) {
+            view.showDate(formatDate(selectedDateMillis));
+        }
+    }
+
+    private String formatDate(long millis) {
+        return new SimpleDateFormat("yyyy/M/d", Locale.TAIWAN).format(new java.util.Date(millis));
+    }
+
+    @Override
     public void submit(String amountText, String note) {
         if (view == null) {
             return;
@@ -212,7 +240,7 @@ public class AddRecordPresenter implements AddRecordContract.IAddRecord_presente
         String toAccountTitle = toAccount == null ? null : toAccount.getTitle();
 
         Record record = new Record(selectedType.name(), amount, fromAccount.getTitle(), toAccountTitle,
-                category, trimmedNote, System.currentTimeMillis());
+                category, trimmedNote, selectedDateMillis);
 
         Account finalFromAccount = fromAccount;
         Account finalToAccount = toAccount;

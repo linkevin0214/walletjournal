@@ -1,6 +1,7 @@
 package com.example.walletjournal.view;
 
 import android.os.Bundle;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -45,6 +46,23 @@ public class AddAccountActivity extends BaseActivity implements AddAccountContra
         findViewById(R.id.btn_add_account_submit).setOnClickListener(v -> presenter.submit(
                 etAccountName.getText().toString(),
                 etOpeningBalance.getText().toString()));
+
+        // Keyboard "Next"/"Done" keys were unwired, so pressing Enter did nothing —
+        // chain name -> balance, then submit from balance like tapping 新增帳戶.
+        etAccountName.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                etOpeningBalance.requestFocus();
+                return true;
+            }
+            return false;
+        });
+        etOpeningBalance.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                presenter.submit(etAccountName.getText().toString(), etOpeningBalance.getText().toString());
+                return true;
+            }
+            return false;
+        });
 
         presenter.attachView(this);
         presenter.selectType(AccountType.CASH);
