@@ -9,7 +9,10 @@ import androidx.room.Query;
 @Dao
 public interface RecordDao {
 
-    @Query("SELECT * FROM records ORDER BY id DESC")
+    // Ordered by createdAt (the record's own date), not insertion id — a record can
+    // now be back-dated via the date picker on Add Record, so the two no longer
+    // always agree. id DESC is just a tiebreaker for same-timestamp rows.
+    @Query("SELECT * FROM records ORDER BY createdAt DESC, id DESC")
     List<Record> getAll();
 
     @Insert
