@@ -58,6 +58,8 @@ public class AddAccountActivity extends BaseActivity implements AddAccountContra
         });
         etOpeningBalance.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                hideKeyboard(v);
+                v.clearFocus();
                 presenter.submit(etAccountName.getText().toString(), etOpeningBalance.getText().toString());
                 return true;
             }

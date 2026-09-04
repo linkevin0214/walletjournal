@@ -120,6 +120,8 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
         });
         etNote.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                hideKeyboard(v);
+                v.clearFocus();
                 presenter.submit(etAmount.getText().toString(), etNote.getText().toString());
                 return true;
             }
@@ -281,6 +283,16 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
             @Override
             public void afterTextChanged(Editable s) {
             }
+        });
+        // The grid already filters live via the TextWatcher above; Enter just closes
+        // the keyboard so the filtered results are fully visible.
+        searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                hideKeyboard(v);
+                v.clearFocus();
+                return true;
+            }
+            return false;
         });
 
         sheet.findViewById(R.id.btn_close_picker).setOnClickListener(v -> dialog.dismiss());

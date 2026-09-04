@@ -48,7 +48,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseCont
         return rect.contains((int) event.getRawX(), (int) event.getRawY());
     }
 
-    private void hideKeyboard(View view) {
+    protected void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);

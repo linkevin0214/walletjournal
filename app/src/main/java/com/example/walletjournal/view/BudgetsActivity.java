@@ -78,6 +78,8 @@ public class BudgetsActivity extends BaseActivity implements BudgetsContract.IBu
                 field.setImeOptions(EditorInfo.IME_ACTION_DONE);
                 field.setOnEditorActionListener((v, actionId, event) -> {
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        hideKeyboard(v);
+                        v.clearFocus();
                         submit();
                         return true;
                     }
