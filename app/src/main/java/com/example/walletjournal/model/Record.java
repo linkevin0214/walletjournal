@@ -2,13 +2,23 @@ package com.example.walletjournal.model;
 
 import androidx.room.Entity;
 import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 /**
  * A single expense/income/transfer entry created on the Add Record screen.
  * Room entity for the "records" table.
+ *
+ * Indexed for the two access patterns RecordDao actually uses: getAll() sorts by
+ * (createdAt, id) — SQLite can walk that index backwards to satisfy the DESC/DESC
+ * order with no separate sort step — and the Stats queries filter by type plus a
+ * createdAt range, which (type, createdAt) serves directly. See MIGRATION_7_8 in
+ * AppDatabase for how these were added to an existing table.
  */
-@Entity(tableName = "records")
+@Entity(tableName = "records", indices = {
+        @Index({"createdAt", "id"}),
+        @Index({"type", "createdAt"})
+})
 public class Record {
 
     @PrimaryKey(autoGenerate = true)

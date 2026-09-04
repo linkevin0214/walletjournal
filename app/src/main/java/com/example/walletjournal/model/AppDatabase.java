@@ -10,7 +10,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {Account.class, Record.class, Budget.class, Category.class}, version = 7, exportSchema = false)
+@Database(entities = {Account.class, Record.class, Budget.class, Category.class}, version = 8, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static volatile AppDatabase INSTANCE;
@@ -39,8 +39,8 @@ public abstract class AppDatabase extends RoomDatabase {
                             // survive the upgrade. If a future version is missing its Migration,
                             // Room throws instead of silently deleting the user's data.
                             .fallbackToDestructiveMigrationFrom(1, 2, 3, 4, 5)
-                            .addMigrations(MIGRATION_6_7)
-                            // .addMigrations(MIGRATION_6_7, MIGRATION_7_8, ...)  // append future migrations here
+                            .addMigrations(MIGRATION_6_7, MIGRATION_7_8)
+                            // .addMigrations(MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, ...)  // append future migrations here
                             .build();
                 }
             }
@@ -105,12 +105,27 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    /**
+     * Adds the two indices declared on Record (see its class doc): (createdAt, id) for
+     * RecordDao#getAll()'s sort, (type, createdAt) for the Stats screen's range-filtered
+     * totals. Names must match exactly what Room's annotation processor generates for
+     * those @Index columns, or schema validation fails on next open ("Migration didn't
+     * properly handle: records") — Room's default naming is index_<table>_<col1>_<col2>.
+     */
+    static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_records_createdAt_id` ON `records` (`createdAt`, `id`)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_records_type_createdAt` ON `records` (`type`, `createdAt`)");
+        }
+    };
+
     /*
      * TEMPLATE for the next schema change — copy this shape, don't bump
      * @Database's version without adding the matching Migration below AND
      * registering it via .addMigrations(...) above.
      *
-     * static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+     * static final Migration MIGRATION_8_9 = new Migration(8, 9) {
      *     @Override
      *     public void migrate(@NonNull SupportSQLiteDatabase db) {
      *         // Additive changes only touch what's new — everything else stays as-is:
