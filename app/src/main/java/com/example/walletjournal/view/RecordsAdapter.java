@@ -1,7 +1,6 @@
 package com.example.walletjournal.view;
 
 import android.graphics.drawable.Drawable;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +38,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ROW = 1;
+    private static final long DAY_MILLIS = 24L * 60 * 60 * 1000;
 
     /** Either a date-header String or a Record. */
     private final List<Object> items = new ArrayList<>();
@@ -63,9 +63,24 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         items.clear();
         if (records != null) {
+            // Calendar.getInstance() itself (the timezone/locale lookup, not just the
+            // per-record field math) is the expensive part — calling it once per record
+            // here made re-filtering a 10000-row search on every keystroke visibly slow.
+            // Computing today's boundary once, and reusing one scratch Calendar for the
+            // month/day of everything older, cuts this from O(records) getInstance()
+            // calls down to 2 for the whole list.
+            Calendar todayCal = Calendar.getInstance();
+            todayCal.set(Calendar.HOUR_OF_DAY, 0);
+            todayCal.set(Calendar.MINUTE, 0);
+            todayCal.set(Calendar.SECOND, 0);
+            todayCal.set(Calendar.MILLISECOND, 0);
+            long todayStart = todayCal.getTimeInMillis();
+            long yesterdayStart = todayStart - DAY_MILLIS;
+            Calendar scratch = Calendar.getInstance();
+
             String lastLabel = null;
             for (Record record : records) {
-                String label = dateLabel(record.getCreatedAt());
+                String label = dateLabel(record.getCreatedAt(), todayStart, yesterdayStart, scratch);
                 if (!label.equals(lastLabel)) {
                     items.add(label);
                     lastLabel = label;
@@ -118,27 +133,18 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return items.size();
     }
 
-    private String dateLabel(long millis) {
-        if (DateUtils.isToday(millis)) {
+    /** todayStart/yesterdayStart are local-midnight boundaries computed once per
+     *  submitList() call; scratch is reused across every record needing a real
+     *  month/day (only setTimeInMillis() per call, no repeated getInstance()). */
+    private String dateLabel(long millis, long todayStart, long yesterdayStart, Calendar scratch) {
+        if (millis >= todayStart) {
             return "今天";
         }
-        Calendar yesterday = Calendar.getInstance();
-        yesterday.add(Calendar.DAY_OF_YEAR, -1);
-        if (isSameDay(millis, yesterday.getTimeInMillis())) {
+        if (millis >= yesterdayStart) {
             return "昨天";
         }
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(millis);
-        return (cal.get(Calendar.MONTH) + 1) + "月" + cal.get(Calendar.DAY_OF_MONTH) + "日";
-    }
-
-    private boolean isSameDay(long a, long b) {
-        Calendar calA = Calendar.getInstance();
-        calA.setTimeInMillis(a);
-        Calendar calB = Calendar.getInstance();
-        calB.setTimeInMillis(b);
-        return calA.get(Calendar.YEAR) == calB.get(Calendar.YEAR)
-                && calA.get(Calendar.DAY_OF_YEAR) == calB.get(Calendar.DAY_OF_YEAR);
+        scratch.setTimeInMillis(millis);
+        return (scratch.get(Calendar.MONTH) + 1) + "月" + scratch.get(Calendar.DAY_OF_MONTH) + "日";
     }
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {

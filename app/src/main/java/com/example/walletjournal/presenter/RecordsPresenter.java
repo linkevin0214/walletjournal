@@ -132,6 +132,15 @@ public class RecordsPresenter implements RecordsContract.IRecords_presenter {
 
         String accountFilter = selectedFilterIndex == 0 ? null : accounts.get(selectedFilterIndex - 1).getTitle();
         boolean hasDateRange = dateRangeStart >= 0;
+        // Computed once per call rather than via isCurrentMonth()'s old per-record
+        // Calendar.getInstance() pair — that ran unconditionally over every one of
+        // allRecords (not just search-matched ones) on every keystroke, and
+        // Calendar.getInstance() itself (not the field math) is the expensive part.
+        // At 10000 records this alone was enough to make typing in the search box
+        // feel laggy.
+        long[] currentMonthRange = currentMonthRange();
+        long currentMonthStart = currentMonthRange[0];
+        long currentMonthEnd = currentMonthRange[1];
 
         long totalExpense = 0;
         long totalIncome = 0;
@@ -163,7 +172,7 @@ public class RecordsPresenter implements RecordsContract.IRecords_presenter {
             boolean fromThisAccount = accountFilter == null || accountFilter.equals(record.getAccount());
             boolean withinSummaryPeriod = hasDateRange
                     ? isWithinRange(record.getCreatedAt())
-                    : isCurrentMonth(record.getCreatedAt());
+                    : (record.getCreatedAt() >= currentMonthStart && record.getCreatedAt() < currentMonthEnd);
             if (fromThisAccount && withinSummaryPeriod) {
                 if (RecordType.EXPENSE.name().equals(record.getType())) {
                     totalExpense += record.getAmount();
@@ -185,12 +194,17 @@ public class RecordsPresenter implements RecordsContract.IRecords_presenter {
         return millis >= dateRangeStart && millis <= dateRangeEnd;
     }
 
-    private boolean isCurrentMonth(long millis) {
-        Calendar now = Calendar.getInstance();
-        Calendar target = Calendar.getInstance();
-        target.setTimeInMillis(millis);
-        return now.get(Calendar.YEAR) == target.get(Calendar.YEAR)
-                && now.get(Calendar.MONTH) == target.get(Calendar.MONTH);
+    /** {start, endExclusive} of the current calendar month, in epoch millis. */
+    private long[] currentMonthRange() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        long start = cal.getTimeInMillis();
+        cal.add(Calendar.MONTH, 1);
+        return new long[] {start, cal.getTimeInMillis()};
     }
 
     private String periodLabel() {
