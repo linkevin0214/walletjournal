@@ -2,14 +2,21 @@
 <resources>
     <!-- API 31+ override of the plain alias in values/themes.xml. Resource
          qualifiers (not a compat library) are what make this safe: a device
-         below API 31 never loads this file at all, so referencing framework
-         android:windowSplashScreen* attributes/android:Theme.SplashScreen here
-         — which don't exist pre-31 — never gets resolved on a device that
-         wouldn't understand them. -->
-    <style name="Theme.App.Starting" parent="@android:style/Theme.SplashScreen">
+         below API 31 never loads this file at all, so referencing the
+         framework android:windowSplashScreen* attributes here — which don't
+         exist pre-31 — never gets resolved on a device that wouldn't
+         understand them.
+
+         There is no framework android:style/Theme.SplashScreen or
+         android:attr/postSplashScreenTheme to parent/switch through — those
+         names belong to the androidx.core:core-splashscreen compat library
+         (dropped in 91394dc), not the platform. On the raw platform API the
+         windowSplashScreen* attributes just go directly on the theme the
+         launcher activity already uses, and the platform clears them itself
+         once the splash is dismissed. -->
+    <style name="Theme.App.Starting" parent="Theme.MyApplication">
         <item name="android:windowSplashScreenBackground">@color/splash_background</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/generated_image</item>
         <item name="android:windowSplashScreenAnimationDuration">500</item>
-        <item name="android:postSplashScreenTheme">@style/Theme.MyApplication</item>
     </style>
 </resources>
