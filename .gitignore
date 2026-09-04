@@ -23,4 +23,4 @@ local.properties
 # Superseded versions are removed (not kept) when this is updated to a new one.
 !app/release/
 app/release/*
-!app/release/WalletJournal-v1.0.1.apk
+!app/release/WalletJournal-v1.0.2.apk
