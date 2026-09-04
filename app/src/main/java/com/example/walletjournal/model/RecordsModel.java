@@ -12,15 +12,18 @@ import com.example.walletjournal.contract.RecordsContract;
  */
 public class RecordsModel implements RecordsContract.IRecords_model {
 
+    private final AppDatabase db;
     private final RecordDao recordDao;
     private final AccountDao accountDao;
     private final CategoryDao categoryDao;
+    private final RecordEffects effects;
 
     public RecordsModel(Context context) {
-        AppDatabase db = AppDatabase.getInstance(context);
+        db = AppDatabase.getInstance(context);
         recordDao = db.recordDao();
         accountDao = db.accountDao();
         categoryDao = db.categoryDao();
+        effects = new RecordEffects(accountDao);
     }
 
     @Override
@@ -41,5 +44,13 @@ public class RecordsModel implements RecordsContract.IRecords_model {
     @Override
     public int getCurrentMonth() {
         return Calendar.getInstance().get(Calendar.MONTH) + 1;
+    }
+
+    @Override
+    public void deleteRecord(Record record) {
+        db.runInTransaction(() -> {
+            effects.reverse(record);
+            recordDao.delete(record);
+        });
     }
 }

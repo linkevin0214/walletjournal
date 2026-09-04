@@ -81,6 +81,12 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return items.get(position) instanceof String ? TYPE_HEADER : TYPE_ROW;
     }
 
+    /** Null for a header position — used by the swipe-to-delete ItemTouchHelper. */
+    public Record getRecordAt(int position) {
+        Object item = items.get(position);
+        return item instanceof Record ? (Record) item : null;
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

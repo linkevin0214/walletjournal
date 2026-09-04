@@ -105,6 +105,14 @@ public class RecordsPresenter implements RecordsContract.IRecords_presenter {
         applyFilter();
     }
 
+    @Override
+    public void deleteRecord(Record record) {
+        AppExecutors.diskIO(() -> {
+            model.deleteRecord(record);
+            AppExecutors.mainThread(this::loadData);
+        });
+    }
+
     private void applyFilter() {
         if (view == null) {
             return;

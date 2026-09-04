@@ -2,6 +2,10 @@ package com.example.walletjournal.view;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +19,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -74,6 +82,7 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
             startActivity(intent);
         });
         rvRecords.setAdapter(adapter);
+        new ItemTouchHelper(new RecordSwipeCallback()).attachToRecyclerView(rvRecords);
 
         tvEmpty = findViewById(R.id.tv_empty);
 
@@ -218,5 +227,82 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
     protected void onDestroy() {
         presenter.detachView();
         super.onDestroy();
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    /**
+     * Swipe left or right on a row to delete it — header rows ("今天" etc.) opt out
+     * via getSwipeDirs(). A confirmation dialog gates the actual delete since this is
+     * destructive; declining (or dismissing) snaps the row back with notifyItemChanged
+     * rather than actually removing anything from the adapter's data.
+     */
+    private class RecordSwipeCallback extends ItemTouchHelper.SimpleCallback {
+
+        RecordSwipeCallback() {
+            super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+        }
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
+                               @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public int getSwipeDirs(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+            int position = viewHolder.getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION || adapter.getRecordAt(position) == null) {
+                return 0;
+            }
+            return super.getSwipeDirs(recyclerView, viewHolder);
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            int position = viewHolder.getBindingAdapterPosition();
+            Record record = position == RecyclerView.NO_POSITION ? null : adapter.getRecordAt(position);
+            if (record == null) {
+                // Shouldn't happen — getSwipeDirs() opts headers out — but reset the
+                // visual swipe rather than leaving the row stuck off-screen if it does.
+                if (position != RecyclerView.NO_POSITION) {
+                    adapter.notifyItemChanged(position);
+                }
+                return;
+            }
+            new AlertDialog.Builder(RecordsActivity.this)
+                    .setTitle("刪除紀錄")
+                    .setMessage("確定要刪除這筆紀錄嗎？此動作無法復原。")
+                    .setNegativeButton("取消", (dialog, which) -> adapter.notifyItemChanged(position))
+                    .setOnCancelListener(dialog -> adapter.notifyItemChanged(position))
+                    .setPositiveButton("刪除", (dialog, which) -> presenter.deleteRecord(record))
+                    .show();
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                                 @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState,
+                                 boolean isCurrentlyActive) {
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                View itemView = viewHolder.itemView;
+                Paint background = new Paint();
+                background.setColor(ContextCompat.getColor(RecordsActivity.this, R.color.accounts_amount_negative));
+                RectF rect = dX > 0
+                        ? new RectF(itemView.getLeft(), itemView.getTop(), dX, itemView.getBottom())
+                        : new RectF(itemView.getRight() + dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                c.drawRect(rect, background);
+
+                Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
+                text.setColor(Color.WHITE);
+                text.setTextSize(itemView.getHeight() * 0.35f);
+                text.setTextAlign(dX > 0 ? Paint.Align.LEFT : Paint.Align.RIGHT);
+                float textX = dX > 0 ? itemView.getLeft() + dp(16) : itemView.getRight() - dp(16);
+                float textY = itemView.getTop() + itemView.getHeight() / 2f - (text.descent() + text.ascent()) / 2f;
+                c.drawText("刪除", textX, textY, text);
+            }
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
     }
 }

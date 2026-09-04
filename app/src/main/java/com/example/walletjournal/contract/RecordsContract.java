@@ -33,6 +33,9 @@ public interface RecordsContract {
 
         /** 1-12. */
         int getCurrentMonth();
+
+        /** Reverses the record's effect on its account balance(s) and removes it. */
+        void deleteRecord(Record record);
     }
 
     interface IRecords_presenter extends BaseContract.IBase_Presenter<IRecords_view> {
@@ -48,5 +51,8 @@ public interface RecordsContract {
         void selectDateRange(long startMillis, long endMillis);
 
         void clearDateRange();
+
+        /** Deletes a record (e.g. from swiping it away) and reloads the list. */
+        void deleteRecord(Record record);
     }
 }
