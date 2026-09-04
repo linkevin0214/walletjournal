@@ -109,8 +109,9 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
         findViewById(R.id.btn_save_record).setOnClickListener(v -> presenter.submit(
                 etAmount.getText().toString(), etNote.getText().toString()));
 
-        // Amount just closes the keyboard on Enter — it doesn't jump to note, since the
-        // user still needs to pick a category first. Note submits, like tapping 儲存.
+        // Enter on either field just closes the keyboard — it never submits on its own.
+        // Amount doesn't jump to note either, since the user still needs to pick a
+        // category first. Saving only ever happens via the 儲存 button.
         // Numeric keypads (et_amount's inputType="number") often don't report a proper
         // actionId for Enter, so isEnterPressed() also falls back to the raw KeyEvent.
         etAmount.setOnEditorActionListener((v, actionId, event) -> {
@@ -125,7 +126,6 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
             if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_DONE)) {
                 hideKeyboard(v);
                 v.clearFocus();
-                presenter.submit(etAmount.getText().toString(), etNote.getText().toString());
                 return true;
             }
             return false;

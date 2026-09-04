@@ -56,13 +56,14 @@ public class AddAccountActivity extends BaseActivity implements AddAccountContra
             }
             return false;
         });
-        // etOpeningBalance is inputType="number" — numeric keypads often don't report a
-        // proper actionId for Enter, so isEnterPressed() also falls back to the raw KeyEvent.
+        // Enter just closes the keyboard — it never submits on its own; saving only
+        // ever happens via the 新增帳戶 button. etOpeningBalance is inputType="number" —
+        // numeric keypads often don't report a proper actionId for Enter, so
+        // isEnterPressed() also falls back to the raw KeyEvent.
         etOpeningBalance.setOnEditorActionListener((v, actionId, event) -> {
             if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_DONE)) {
                 hideKeyboard(v);
                 v.clearFocus();
-                presenter.submit(etAccountName.getText().toString(), etOpeningBalance.getText().toString());
                 return true;
             }
             return false;

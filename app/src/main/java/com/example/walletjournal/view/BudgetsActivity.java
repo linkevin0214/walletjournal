@@ -77,12 +77,13 @@ public class BudgetsActivity extends BaseActivity implements BudgetsContract.IBu
             EditText field = amountFields.get(i);
             boolean isLast = i == amountFields.size() - 1;
             if (isLast) {
+                // Enter just closes the keyboard — it never submits on its own; saving
+                // only ever happens via the 儲存 button.
                 field.setImeOptions(EditorInfo.IME_ACTION_DONE);
                 field.setOnEditorActionListener((v, actionId, event) -> {
                     if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_DONE)) {
                         hideKeyboard(v);
                         v.clearFocus();
-                        submit();
                         return true;
                     }
                     return false;

@@ -76,11 +76,12 @@ public class AddCategoryActivity extends BaseActivity implements AddCategoryCont
                 presenter.submit(etName.getText().toString()));
 
         // Keyboard "Done" key was unwired, so pressing Enter did nothing.
+        // Enter just closes the keyboard — it never submits on its own; saving only
+        // ever happens via the 新增分類 button.
         etName.setOnEditorActionListener((v, actionId, event) -> {
             if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_DONE)) {
                 hideKeyboard(v);
                 v.clearFocus();
-                presenter.submit(etName.getText().toString());
                 return true;
             }
             return false;
