@@ -1,4 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Launch (cold-start) theme, set on the launcher activity only (AccountsActivity)
+         via the AndroidX SplashScreen compat library — draws natively on Android 12+
+         and is emulated on older versions back to the app's minSdk. postSplashScreenTheme
+         is what the activity's theme becomes once the splash is dismissed. -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/generated_image</item>
+        <item name="windowSplashScreenAnimationDuration">500</item>
+        <item name="postSplashScreenTheme">@style/Theme.MyApplication</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="Theme.MyApplication" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
