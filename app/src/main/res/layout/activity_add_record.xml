@@ -108,7 +108,7 @@
                 android:background="@null"
                 android:gravity="center"
                 android:hint="0"
-                android:imeOptions="actionNext"
+                android:imeOptions="actionDone"
                 android:includeFontPadding="false"
                 android:inputType="number"
                 android:maxLines="1"

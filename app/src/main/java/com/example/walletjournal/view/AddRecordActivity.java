@@ -109,17 +109,20 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
         findViewById(R.id.btn_save_record).setOnClickListener(v -> presenter.submit(
                 etAmount.getText().toString(), etNote.getText().toString()));
 
-        // Keyboard "Next"/"Done" keys were unwired, so pressing Enter did nothing —
-        // chain amount -> note, then submit from note like tapping 儲存.
+        // Amount just closes the keyboard on Enter — it doesn't jump to note, since the
+        // user still needs to pick a category first. Note submits, like tapping 儲存.
+        // Numeric keypads (et_amount's inputType="number") often don't report a proper
+        // actionId for Enter, so isEnterPressed() also falls back to the raw KeyEvent.
         etAmount.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                etNote.requestFocus();
+            if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_DONE)) {
+                hideKeyboard(v);
+                v.clearFocus();
                 return true;
             }
             return false;
         });
         etNote.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_DONE)) {
                 hideKeyboard(v);
                 v.clearFocus();
                 presenter.submit(etAmount.getText().toString(), etNote.getText().toString());
@@ -287,7 +290,7 @@ public class AddRecordActivity extends BaseActivity implements AddRecordContract
         // The grid already filters live via the TextWatcher above; Enter just closes
         // the keyboard so the filtered results are fully visible.
         searchInput.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_SEARCH)) {
                 hideKeyboard(v);
                 v.clearFocus();
                 return true;

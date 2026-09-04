@@ -3,6 +3,7 @@ package com.example.walletjournal.view;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -53,6 +54,21 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseCont
         if (imm != null) {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    /**
+     * True if the field's IME action fired with the given id, OR the user pressed a
+     * raw Enter key. Some numeric keypads (inputType="number") never report a proper
+     * editor action for Enter — they only send this raw KeyEvent instead — so an
+     * OnEditorActionListener that checks actionId alone silently does nothing on
+     * those keyboards.
+     */
+    protected boolean isEnterPressed(int actionId, KeyEvent event, int expectedActionId) {
+        if (actionId == expectedActionId) {
+            return true;
+        }
+        return event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                && event.getAction() == KeyEvent.ACTION_DOWN;
     }
 
     @Override

@@ -77,7 +77,7 @@ public class AddCategoryActivity extends BaseActivity implements AddCategoryCont
 
         // Keyboard "Done" key was unwired, so pressing Enter did nothing.
         etName.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_DONE)) {
                 hideKeyboard(v);
                 v.clearFocus();
                 presenter.submit(etName.getText().toString());

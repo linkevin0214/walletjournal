@@ -71,13 +71,15 @@ public class BudgetsActivity extends BaseActivity implements BudgetsContract.IBu
 
         // Keyboard "Next"/"Done" keys were unwired, so pressing Enter did nothing —
         // chain each row's amount field to the next, and submit from the last one.
+        // These fields are inputType="number" — numeric keypads often don't report a
+        // proper actionId for Enter, so isEnterPressed() also falls back to the raw KeyEvent.
         for (int i = 0; i < amountFields.size(); i++) {
             EditText field = amountFields.get(i);
             boolean isLast = i == amountFields.size() - 1;
             if (isLast) {
                 field.setImeOptions(EditorInfo.IME_ACTION_DONE);
                 field.setOnEditorActionListener((v, actionId, event) -> {
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_DONE)) {
                         hideKeyboard(v);
                         v.clearFocus();
                         submit();
@@ -88,7 +90,7 @@ public class BudgetsActivity extends BaseActivity implements BudgetsContract.IBu
             } else {
                 EditText next = amountFields.get(i + 1);
                 field.setOnEditorActionListener((v, actionId, event) -> {
-                    if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_NEXT)) {
                         next.requestFocus();
                         return true;
                     }

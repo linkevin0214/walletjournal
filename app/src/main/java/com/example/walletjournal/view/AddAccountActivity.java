@@ -50,14 +50,16 @@ public class AddAccountActivity extends BaseActivity implements AddAccountContra
         // Keyboard "Next"/"Done" keys were unwired, so pressing Enter did nothing —
         // chain name -> balance, then submit from balance like tapping 新增帳戶.
         etAccountName.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+            if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_NEXT)) {
                 etOpeningBalance.requestFocus();
                 return true;
             }
             return false;
         });
+        // etOpeningBalance is inputType="number" — numeric keypads often don't report a
+        // proper actionId for Enter, so isEnterPressed() also falls back to the raw KeyEvent.
         etOpeningBalance.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_DONE)) {
                 hideKeyboard(v);
                 v.clearFocus();
                 presenter.submit(etAccountName.getText().toString(), etOpeningBalance.getText().toString());
