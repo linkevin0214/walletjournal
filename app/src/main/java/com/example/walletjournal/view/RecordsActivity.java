@@ -7,8 +7,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -54,6 +58,9 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
     private LinearLayout containerTypeFilters;
     private LinearLayout containerDateFilter;
 
+    private EditText etSearch;
+    private TextView btnClearSearch;
+
     private RecyclerView rvRecords;
     private RecordsAdapter adapter;
     private TextView tvEmpty;
@@ -72,6 +79,33 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
         containerFilters = findViewById(R.id.container_filters);
         containerTypeFilters = findViewById(R.id.container_type_filters);
         containerDateFilter = findViewById(R.id.container_date_filter);
+
+        etSearch = findViewById(R.id.et_search);
+        btnClearSearch = findViewById(R.id.btn_clear_search);
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                btnClearSearch.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+                presenter.setSearchQuery(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        etSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (isEnterPressed(actionId, event, EditorInfo.IME_ACTION_SEARCH)) {
+                hideKeyboard(v);
+                v.clearFocus();
+                return true;
+            }
+            return false;
+        });
+        btnClearSearch.setOnClickListener(v -> etSearch.setText(""));
 
         rvRecords = findViewById(R.id.rv_records);
         rvRecords.setLayoutManager(new LinearLayoutManager(this));

@@ -38,6 +38,8 @@ public class RecordsPresenter implements RecordsContract.IRecords_presenter {
     /** < 0 = 全部日期 (no date filter active). Inclusive [dateRangeStart, dateRangeEnd]. */
     private long dateRangeStart = -1;
     private long dateRangeEnd = -1;
+    /** Lowercased, trimmed; empty = no search filter active. */
+    private String searchQuery = "";
 
     public RecordsPresenter(Context context) {
         model = new RecordsModel(context);
@@ -113,6 +115,12 @@ public class RecordsPresenter implements RecordsContract.IRecords_presenter {
         });
     }
 
+    @Override
+    public void setSearchQuery(String query) {
+        searchQuery = query == null ? "" : query.trim().toLowerCase(Locale.TAIWAN);
+        applyFilter();
+    }
+
     private void applyFilter() {
         if (view == null) {
             return;
@@ -137,10 +145,15 @@ public class RecordsPresenter implements RecordsContract.IRecords_presenter {
             }
 
             // The list: an explicit date range restricts it; with none, it shows full
-            // history like before. The type filter only ever narrows the list.
+            // history like before. The type and search filters only ever narrow the list.
             boolean withinListRange = !hasDateRange || isWithinRange(record.getCreatedAt());
             boolean matchesType = typeFilter == null || typeFilter.name().equals(record.getType());
-            if (withinListRange && matchesType) {
+            boolean matchesQuery = searchQuery.isEmpty()
+                    || containsQuery(record.getCategory())
+                    || containsQuery(record.getNote())
+                    || containsQuery(record.getAccount())
+                    || containsQuery(record.getToAccount());
+            if (withinListRange && matchesType && matchesQuery) {
                 filtered.add(record);
             }
 
@@ -162,6 +175,10 @@ public class RecordsPresenter implements RecordsContract.IRecords_presenter {
 
         view.showSummary(periodLabel(), totalExpense, totalIncome);
         view.showRecords(filtered, categories);
+    }
+
+    private boolean containsQuery(String value) {
+        return value != null && value.toLowerCase(Locale.TAIWAN).contains(searchQuery);
     }
 
     private boolean isWithinRange(long millis) {

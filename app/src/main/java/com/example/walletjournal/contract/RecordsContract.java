@@ -54,5 +54,10 @@ public interface RecordsContract {
 
         /** Deletes a record (e.g. from swiping it away) and reloads the list. */
         void deleteRecord(Record record);
+
+        /** Free-text search over note/category/account/toAccount, live as the user
+         *  types. Narrows only the list, same as the type filter — never the summary
+         *  tiles. Empty/null clears it. */
+        void setSearchQuery(String query);
     }
 }

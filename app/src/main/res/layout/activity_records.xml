@@ -130,6 +130,55 @@
         </HorizontalScrollView>
     </LinearLayout>
 
+    <!-- Search: filters the visible list by note/category/account, live as you type. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/bg_account_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔍"
+            android:textColor="@color/accounts_placeholder"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="搜尋備註、分類、帳戶"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="@color/accounts_text_primary"
+            android:textColorHint="@color/accounts_placeholder"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/btn_clear_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="4dp"
+            android:text="✕"
+            android:textColor="@color/accounts_placeholder"
+            android:textSize="13sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
     <!-- Records list, grouped by day -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_records"
