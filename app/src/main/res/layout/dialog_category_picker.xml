@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet_top_rounded"
+    android:orientation="vertical"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="20dp"
+    >
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_drag_handle" />
+
+    <!-- Header: title + close -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="選擇分類"
+            android:textColor="@color/accounts_text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btn_close_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="4dp"
+            android:text="✕"
+            android:textColor="@color/accounts_text_primary"
+            android:textSize="18sp" />
+    </FrameLayout>
+
+    <!-- Search box -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_account_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔍"
+            android:textColor="@color/accounts_placeholder"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_search_category"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="搜尋分類"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="@color/accounts_text_primary"
+            android:textColorHint="@color/accounts_placeholder"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Category grid: NestedScrollView so the drag handle can still hand off
+         the gesture to BottomSheetBehavior when this is scrolled to the top,
+         and so the sheet scrolls internally instead of overflowing the screen
+         when there are many categories. -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/container_category_picker_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </androidx.core.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/tv_no_results"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="找不到符合的分類"
+        android:textColor="@color/accounts_placeholder"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <!-- Add custom category -->
+    <TextView
+        android:id="@+id/btn_add_custom_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_dashed_border"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:padding="14dp"
+        android:text="＋　新增自訂分類"
+        android:textColor="@color/accounts_placeholder"
+        android:textSize="14sp" />
+
+</LinearLayout>

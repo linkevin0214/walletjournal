@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/accounts_bg"
+    android:orientation="vertical"
+    tools:context=".view.StatsActivity">
+
+    <!-- Header (fixed) -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="24dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="24dp"
+        android:text="收支統計"
+        android:textColor="@color/accounts_text_primary"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <!-- Category / trend / ranking segmented control -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/bg_account_card"
+        android:orientation="horizontal"
+        android:padding="4dp">
+
+        <TextView
+            android:id="@+id/tab_category"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="分類"
+            android:textColor="@color/accounts_text_secondary"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tab_trend"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="趨勢"
+            android:textColor="@color/accounts_text_secondary"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tab_ranking"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_segment_selected"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="排行"
+            android:textColor="@color/accounts_text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Content: also recognizes a left/right swipe to switch tabs, see
+         SwipeableFrameLayout / StatsActivity#selectTab. -->
+    <com.example.walletjournal.view.SwipeableFrameLayout
+        android:id="@+id/content_stats_panels"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- 排行 panel -->
+        <LinearLayout
+            android:id="@+id/panel_ranking"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="24dp">
+
+            <TextView
+                android:id="@+id/tv_ranking_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="本月支出排行"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="13sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_ranking"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                tools:itemCount="5"
+                tools:listitem="@layout/item_ranking" />
+
+            <TextView
+                android:id="@+id/tv_ranking_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:text="本月還沒有支出紀錄"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- 分類 panel -->
+        <LinearLayout
+            android:id="@+id/panel_category"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="24dp"
+            android:visibility="gone">
+
+            <!-- Top half: title + donut chart, centered in its half -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_category_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="本月支出分佈"
+                        android:textColor="@color/accounts_text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btn_edit_budget"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="4dp"
+                        android:text="設定預算"
+                        android:textColor="@color/accounts_text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <!-- Sizes itself to whatever square actually fits this half of
+                         the panel, instead of a fixed 200dp that clips on short screens. -->
+                    <com.example.walletjournal.view.SquareFrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center">
+
+                        <com.example.walletjournal.view.DonutChartView
+                            android:id="@+id/donut_chart"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="總計"
+                                android:textColor="@color/accounts_text_secondary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/tv_category_total"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:textColor="@color/accounts_text_primary"
+                                android:textSize="21sp"
+                                android:textStyle="bold"
+                                tools:text="$12,480" />
+                        </LinearLayout>
+                    </com.example.walletjournal.view.SquareFrameLayout>
+                </FrameLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/accounts_divider" />
+
+            <!-- Bottom half: 資料占比 list -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_category_share"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:clipToPadding="false"
+                    tools:itemCount="3"
+                    tools:listitem="@layout/item_category_share" />
+
+                <TextView
+                    android:id="@+id/tv_category_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:gravity="center"
+                    android:text="本月還沒有支出紀錄"
+                    android:textColor="@color/accounts_text_secondary"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Budget progress for the top-spending category (hidden if no budget set) -->
+            <LinearLayout
+                android:id="@+id/section_budget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_budget_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="@color/accounts_text_secondary"
+                        android:textSize="13sp"
+                        tools:text="餐飲預算" />
+
+                    <TextView
+                        android:id="@+id/tv_budget_amount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/accounts_text_secondary"
+                        android:textSize="13sp"
+                        tools:text="$5,600 / $7,200" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/budget_bar_track"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_progress_track"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/budget_bar_fill"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="50"
+                        android:background="@drawable/bg_progress_fill" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="50" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 趨勢 panel -->
+        <LinearLayout
+            android:id="@+id/panel_trend"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="24dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:text="近 6 個月支出趨勢"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="13sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_trend"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:clipToPadding="false"
+                tools:itemCount="6"
+                tools:listitem="@layout/item_trend" />
+
+            <TextView
+                android:id="@+id/tv_trend_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:text="這段期間還沒有支出紀錄"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </com.example.walletjournal.view.SwipeableFrameLayout>
+
+    <!-- Bottom navigation bar -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bg_bottom_bar_floating"
+            android:elevation="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:weightSum="2">
+
+            <!-- Left half: 清單 + 帳戶, split evenly -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:id="@+id/tab_list"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:gravity="center"
+                        android:text="☰"
+                        android:textColor="#98A2B3"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="清單"
+                        android:textColor="#98A2B3"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tab_accounts"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:gravity="center"
+                        android:text="◫"
+                        android:textColor="#98A2B3"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="帳戶"
+                        android:textColor="#98A2B3"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Right half: 統計 alone, centered so the FAB below (pinned to
+                 screen center) lands exactly on the boundary between the two -->
+            <LinearLayout
+                android:id="@+id/tab_stats"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_nav_active_soft"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:gravity="center"
+                    android:text="▥"
+                    android:textColor="#2F80ED"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="統計"
+                    android:textColor="#344054"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btn_fab_add"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/bg_fab_clean"
+            android:elevation="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="+"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+</LinearLayout>

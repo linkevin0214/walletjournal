@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/accounts_bg"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context=".view.AddRecordActivity">
+
+        <!-- Top bar: close + centered title -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="新增紀錄"
+                android:textColor="@color/accounts_text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btn_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp"
+                android:text="✕"
+                android:textColor="@color/accounts_text_primary"
+                android:textSize="18sp" />
+        </FrameLayout>
+
+        <!-- Type segmented control: expense / income / transfer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_account_card"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/tab_expense"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_segment_selected"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="支出"
+                android:textColor="@color/accounts_amount_negative"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tab_income"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="收入"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tab_transfer"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="轉帳"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Amount: big centered display -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="14dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$"
+                android:textColor="@color/accounts_text_primary"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/et_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:gravity="center"
+                android:hint="0"
+                android:includeFontPadding="false"
+                android:inputType="number"
+                android:maxLines="1"
+                android:minHeight="0dp"
+                android:minWidth="80dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:textColor="@color/accounts_text_primary"
+                android:textColorHint="@color/accounts_placeholder"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="14dp"
+            android:background="@color/accounts_divider" />
+
+        <!-- Account row -->
+        <LinearLayout
+            android:id="@+id/row_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
+
+            <FrameLayout
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_icon_circle_gray">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="💵"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="帳戶"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_account_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="現金"
+                android:textColor="@color/accounts_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="›"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/accounts_divider" />
+
+        <!-- To-account row (transfer only) -->
+        <LinearLayout
+            android:id="@+id/row_to_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_icon_circle_blue">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="🏦"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="轉入帳戶"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_to_account_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="銀行帳戶"
+                android:textColor="@color/accounts_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="›"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider_to_account"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/accounts_divider"
+            android:visibility="gone" />
+
+        <!-- Category preview (EXPENSE + INCOME share this): first few
+             categories + a trailing "更多" card that opens the full picker
+             bottom sheet. Hidden for TRANSFER. -->
+        <LinearLayout
+            android:id="@+id/section_category_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="分類"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:id="@+id/container_category_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/accounts_divider" />
+
+        <!-- Note row -->
+        <LinearLayout
+            android:id="@+id/row_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="備註"
+                android:textColor="@color/accounts_text_secondary"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/et_note"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:gravity="end"
+                android:hint="午餐"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/accounts_text_primary"
+                android:textColorHint="@color/accounts_placeholder"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/accounts_divider" />
+
+        <!-- Save button -->
+        <TextView
+            android:id="@+id/btn_save_record"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_button_primary"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="儲存"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+</LinearLayout>

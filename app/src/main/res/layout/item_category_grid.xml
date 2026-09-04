@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_type_card_unselected"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <FrameLayout
+        android:id="@+id/item_icon_circle"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_dot">
+
+        <TextView
+            android:id="@+id/item_icon_emoji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="16sp"
+            tools:text="🍴" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/accounts_text_primary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        tools:text="餐飲" />
+
+</LinearLayout>

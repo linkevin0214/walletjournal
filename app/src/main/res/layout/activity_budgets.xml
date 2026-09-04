@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/accounts_bg"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context=".view.BudgetsActivity">
+
+    <!-- Top bar: close + centered title -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="分類預算"
+            android:textColor="@color/accounts_text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btn_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="4dp"
+            android:text="✕"
+            android:textColor="@color/accounts_text_primary"
+            android:textSize="18sp" />
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="每月預算金額,留空表示不設定"
+        android:textColor="@color/accounts_text_secondary"
+        android:textSize="13sp" />
+
+    <LinearLayout
+        android:id="@+id/container_budgets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="vertical" />
+
+    <TextView
+        android:id="@+id/btn_save_budgets"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_button_primary"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="儲存"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Accounts screen -->
+    <color name="accounts_bg">#F3EFE6</color>
+    <color name="accounts_card_bg">#EEEAE0</color>
+    <color name="accounts_text_primary">#1B1B1B</color>
+    <color name="accounts_text_secondary">#9C9890</color>
+    <color name="accounts_amount_negative">#B3392E</color>
+    <color name="accounts_button_border">#D9D4C6</color>
+
+    <color name="icon_bg_green">#D7F2E3</color>
+    <color name="icon_bg_blue">#DCEAFB</color>
+    <color name="icon_bg_orange">#FBE8C6</color>
+
+    <!-- Add account screen -->
+    <color name="accounts_divider">#E4E0D4</color>
+    <color name="accounts_placeholder">#B8B4A8</color>
+
+    <!-- Add record screen -->
+    <color name="icon_bg_gray">#EDEAE1</color>
+    <color name="category_amber">#C98A2B</color>
+
+    <!-- Records list -->
+    <color name="income_green">#2E7D5B</color>
+    <color name="icon_bg_red">#F4DAD5</color>
+
+    <!-- Stats trend chart -->
+    <color name="trend_bar">#3B82D6</color>
+    <color name="trend_bar_current">#E2572B</color>
+
+    <!-- Records screen header + bottom nav -->
+    <color name="header_bg">#1B1B1B</color>
+    <color name="header_text_muted">#A8A39A</color>
+    <color name="filter_pill_selected">#3D3D3D</color>
+    <color name="header_expense_amount">#FF6B5B</color>
+    <color name="header_income_amount">#4ADE94</color>
+    <color name="nav_active">#2F80ED</color>
+    <color name="nav_inactive">#98A2B3</color>
+</resources>

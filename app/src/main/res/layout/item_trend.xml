@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="56dp"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp">
+
+    <TextView
+        android:id="@+id/item_trend_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:textColor="@color/accounts_text_secondary"
+        android:textSize="10sp"
+        tools:text="5.6k" />
+
+    <LinearLayout
+        android:id="@+id/item_trend_bar_track"
+        android:layout_width="22dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_progress_track"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="50" />
+
+        <View
+            android:id="@+id/item_trend_bar_fill"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="50"
+            android:background="@drawable/bg_progress_fill" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/item_trend_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/accounts_text_secondary"
+        android:textSize="11sp"
+        tools:text="4月" />
+
+</LinearLayout>
