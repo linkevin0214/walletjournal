@@ -104,6 +104,11 @@ public class RecordsActivity extends BaseActivity implements RecordsContract.IRe
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 btnClearSearch.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
                 presenter.setSearchQuery(s.toString());
+                // setSearchQuery() re-filters and calls showRecords() synchronously, so the
+                // adapter already holds the new (usually shorter) result list by this point —
+                // jump back to its top rather than leaving the list wherever it happened to be
+                // scrolled to, which on a short result list can be past the end (nothing drawn).
+                rvRecords.scrollToPosition(0);
             }
 
             @Override
